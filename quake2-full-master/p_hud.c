@@ -302,14 +302,17 @@ void HelpComputer (edict_t *ent)
 		"xv 0 yv 54 cstring2 \"%s\" "		// help 1
 		"xv 0 yv 110 cstring2 \"%s\" "		// help 2
 		"xv 50 yv 164 string2 \" kills     goals    secrets\" "
-		"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" ", 
+		"xv 50 yv 172 string2 \"%3i/%3i     %i/%i       %i/%i\" "
+		"xv 50 yv 200 string2 \"Coins		\" "
+		"xv 100 yv 200 string2 \"%i\" ",
 		sk,
 		level.level_name,
 		game.helpmessage1,
 		game.helpmessage2,
 		level.killed_monsters, level.total_monsters, 
 		level.found_goals, level.total_goals,
-		level.found_secrets, level.total_secrets);
+		level.found_secrets, level.total_secrets,
+		level.coins);
 
 	gi.WriteByte (svc_layout);
 	gi.WriteString (string);
@@ -447,6 +450,12 @@ void G_SetStats (edict_t *ent)
 		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex ("p_rebreather");
 		ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum)/10;
 	}
+	// new: adds timer for silencer
+	/*else if (ent->client->silencer_shots > level.framenum)
+	{
+		ent->client->ps.stats[STAT_TIMER_ICON] = gi.imageindex("p_silencer");
+		ent->client->ps.stats[STAT_TIMER] = (ent->client->breather_framenum - level.framenum) / 10;
+	}*/
 	else
 	{
 		ent->client->ps.stats[STAT_TIMER_ICON] = 0;

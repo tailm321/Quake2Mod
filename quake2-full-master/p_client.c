@@ -608,6 +608,11 @@ void InitClientPersistant (gclient_t *client)
 	client->pers.max_slugs		= 50;
 
 	client->pers.connected = true;
+
+	// new: initializes coins and lives
+	//client->pers.coins			= 0;
+	//client->pers.max_coins		= 100;
+	//client->pers.lives			= 3;
 }
 
 
@@ -640,6 +645,9 @@ void SaveClientData (void)
 			continue;
 		game.clients[i].pers.health = ent->health;
 		game.clients[i].pers.max_health = ent->max_health;
+		// new: same for coins and lives
+		level.coins = level.coins;
+		//game.clients[i].pers.lives = ent->lives;
 		game.clients[i].pers.savedFlags = (ent->flags & (FL_GODMODE|FL_NOTARGET|FL_POWER_ARMOR));
 		if (coop->value)
 			game.clients[i].pers.score = ent->client->resp.score;
@@ -650,6 +658,9 @@ void FetchClientEntData (edict_t *ent)
 {
 	ent->health = ent->client->pers.health;
 	ent->max_health = ent->client->pers.max_health;
+	// new: coins and lives
+	level.coins = level.coins;
+	//ent->lives = ent->client->pers.lives;
 	ent->flags |= ent->client->pers.savedFlags;
 	if (coop->value)
 		ent->client->resp.score = ent->client->pers.score;
@@ -960,8 +971,14 @@ void CopyToBodyQue (edict_t *ent)
 
 void respawn (edict_t *self)
 {
-	if (deathmatch->value || coop->value)
+	if (deathmatch->value || coop->value /*|| self->client->pers.lives > 0*/)  //added so that if player has at least 1 life, can respawn
 	{
+		// new: chasecam
+		if (self->client->oldplayer)
+			G_FreeEdict(self->client->oldplayer);
+		if (self->client->chasecam)
+			G_FreeEdict(self->client->chasecam);
+
 		// spectator's don't leave bodies
 		if (self->movetype != MOVETYPE_NOCLIP)
 			CopyToBodyQue (self);
@@ -1160,6 +1177,8 @@ void PutClientInServer (edict_t *ent)
 	ent->watertype = 0;
 	ent->flags &= ~FL_NO_KNOCKBACK;
 	ent->svflags &= ~SVF_DEADMONSTER;
+	// new: chasecam
+	ent->svflags &= ~SVF_NOCLIENT;
 
 	VectorCopy (mins, ent->mins);
 	VectorCopy (maxs, ent->maxs);
@@ -1643,7 +1662,9 @@ void ClientThink (edict_t *ent, usercmd_t *ucmd)
 		if (ent->groundentity && !pm.groundentity && (pm.cmd.upmove >= 10) && (pm.waterlevel == 0))
 		{
 			gi.sound(ent, CHAN_VOICE, gi.soundindex("*jump1.wav"), 1, ATTN_NORM, 0);
-			PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
+			// new: player does not make noise if jumping with silencer
+			/*if (!ent->client->silencer_shots)*/
+				PlayerNoise(ent, ent->s.origin, PNOISE_SELF);
 		}
 
 		ent->viewheight = pm.viewheight;

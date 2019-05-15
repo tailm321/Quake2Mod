@@ -415,7 +415,12 @@ qboolean FindTarget (edict_t *self)
 // but not weapon impact/explosion noises
 
 	heardit = false;
-	if ((level.sight_entity_framenum >= (level.framenum - 1)) && !(self->spawnflags & 1) )
+	// new: player should not make noise with silencer equipped
+	/*if (self->client->silencer_shots)
+	{
+		return false;
+	}
+	else */if ((level.sight_entity_framenum >= (level.framenum - 1)) && !(self->spawnflags & 1) )
 	{
 		client = level.sight_entity;
 		if (client->enemy == self->enemy)
@@ -475,6 +480,10 @@ qboolean FindTarget (edict_t *self)
 			return false;
 
 // this is where we would check invisibility
+
+		// new: if silencer equipped, should be invisible
+		/*if (self->client->silencer_shots)
+			return false;*/
 
 		// is client in an spot too dark to be seen?
 		if (client->light_level <= 5)

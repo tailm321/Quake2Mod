@@ -315,6 +315,11 @@ typedef struct
 	int			total_monsters;
 	int			killed_monsters;
 
+	// new: coins and lives brought over from edict
+	int			coins;
+	int			max_coins;
+	int			lives;
+
 	edict_t		*current_entity;	// entity running from G_RunFrame
 	int			body_que;			// dead bodies
 
@@ -844,6 +849,7 @@ typedef struct
 	int			helpchanged;
 
 	qboolean	spectator;			// client is a spectator
+
 } client_persistant_t;
 
 // client data that stays across deathmatch respawns
@@ -928,7 +934,7 @@ struct gclient_s
 
 	qboolean	grenade_blew_up;
 	float		grenade_time;
-	int			silencer_shots;
+	int		silencer_shots;		// new: changed from int
 	int			weapon_sound;
 
 	float		pickup_msg_time;
@@ -938,6 +944,14 @@ struct gclient_s
 	int			flood_whenhead;		// head pointer for when said
 
 	float		respawn_time;		// can respawn when time > this
+
+	// new: chasecam variables
+
+	int			chasetoggle;		// int that determines whether chasecam is on or not
+	edict_t		*chasecam;			
+	edict_t		*oldplayer;
+
+	// end
 
 	edict_t		*chase_target;		// player we are chasing
 	qboolean	update_chase;		// need to update chase info?
@@ -1091,5 +1105,17 @@ struct edict_s
 	// common data blocks
 	moveinfo_t		moveinfo;
 	monsterinfo_t	monsterinfo;
+
+	// new: chasecam
+	int			chasedist1;
+	int			chasedist2;
+	// end
+
+	// new: coins and lives
+	int			coins;
+	int			max_coins;
+	int			lives;
 };
 
+// new: chasecam
+extern void CheckChasecam_Viewent(edict_t *ent);

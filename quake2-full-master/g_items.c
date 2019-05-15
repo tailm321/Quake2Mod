@@ -191,7 +191,7 @@ qboolean Pickup_Adrenaline (edict_t *ent, edict_t *other)
 
 qboolean Pickup_AncientHead (edict_t *ent, edict_t *other)
 {
-	other->max_health += 2;
+	other->lives += 1;		// gives an extra life instead of mox health
 
 	if (!(ent->spawnflags & DROPPED_ITEM) && (deathmatch->value))
 		SetRespawn (ent, ent->item->quantity);
@@ -395,6 +395,12 @@ void	Use_Silencer (edict_t *ent, gitem_t *item)
 	ValidateSelectedItem (ent);
 	ent->client->silencer_shots += 30;
 
+	// new: makes silencer a timed powerup lasting 30 seconds
+	/*if (ent->client->silencer_shots > level.framenum)
+		ent->client->silencer_shots += 300;
+	else
+		ent->client->silencer_shots = level.framenum + 300;*/
+
 //	gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage.wav"), 1, ATTN_NORM, 0);
 }
 
@@ -467,6 +473,15 @@ qboolean Pickup_Ammo (edict_t *ent, edict_t *other)
 	int			count;
 	qboolean	weapon;
 
+	// new: picking up ammo should increment coin counter by 1, reseting at 100
+	other->coins += 1;
+	gi.bprintf("PRINT_BOTTOM", "Coins + 1\n");
+	if (level.coins = level.max_coins){
+		level.coins = 0;
+		level.lives += 1;
+		gi.bprintf("PRINT_BOTTOM", "Lives + 1\n");
+	}
+
 	weapon = (ent->item->flags & IT_WEAPON);
 	if ( (weapon) && ( (int)dmflags->value & DF_INFINITE_AMMO ) )
 		count = 1000;
@@ -536,6 +551,15 @@ void MegaHealth_think (edict_t *self)
 
 qboolean Pickup_Health (edict_t *ent, edict_t *other)
 {
+	// new: picking up health should increment coin counter by 1, reseting at 100
+	level.coins += 1;
+	gi.bprintf("PRINT_BOTTOM", "Coins + 1\n");
+	if (level.coins = level.max_coins){
+		level.coins = 0;
+		level.lives += 1;
+		gi.bprintf("PRINT_BOTTOM", "Lives + 1\n");
+	}
+
 	if (!(ent->style & HEALTH_IGNORE_MAX))
 		if (other->health >= other->max_health)
 			return false;

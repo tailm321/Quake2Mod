@@ -205,6 +205,11 @@ void ChangeWeapon (edict_t *ent)
 			ent->client->anim_end = FRAME_pain304;
 			
 	}
+
+	// new: affects how weapon is displayed in chasecam
+	if (!ent->client->chasetoggle)
+		ent->client->ps.gunindex = gi.modelindex(ent->client->pers.weapon->view_model);
+	// end
 }
 
 /*
@@ -810,7 +815,8 @@ void Blaster_Fire (edict_t *ent, vec3_t g_offset, int damage, qboolean hyper, in
 	VectorScale (forward, -2, ent->client->kick_origin);
 	ent->client->kick_angles[0] = -1;
 
-	fire_blaster (ent, start, forward, damage, 1000, effect, hyper);
+	fire_
+		(ent, start, forward, damage, 1000, effect, hyper);
 
 	// send muzzle flash
 	gi.WriteByte (svc_muzzleflash);
